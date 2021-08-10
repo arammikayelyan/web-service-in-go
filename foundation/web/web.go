@@ -6,9 +6,24 @@ import (
 	"net/http"
 	"os"
 	"syscall"
+	"time"
 
 	"github.com/dimfeld/httptreemux/v5"
+	"github.com/google/uuid"
 )
+
+// ctxKey represents the type of value for the context key.
+type ctxKey int
+
+// KeyValues is how request values are stored/retrieved.
+const KeyValues ctxKey = 1
+
+// Values represent state for each request.
+type Values struct {
+	TraceID    string
+	Now        time.Time
+	StatusCode int
+}
 
 // A Handler is a type that handles an http request within our own little mini
 // framework
@@ -39,7 +54,16 @@ func (a *App) SignalShutdown() {
 
 func (a *App) Handle(method, path string, handler Handler) {
 	h := func(w http.ResponseWriter, r *http.Request) {
-		if err := handler(r.Context(), w, r); err != nil {
+
+		// Set the context with the required values to
+		// process the request.
+		v := Values{
+			TraceID: uuid.New().String(),
+			Now:     time.Now(),
+		}
+		ctx := context.WithValue(r.Context(), KeyValues, &v)
+
+		if err := handler(ctx, w, r); err != nil {
 			a.SignalShutdown()
 			return
 		}
