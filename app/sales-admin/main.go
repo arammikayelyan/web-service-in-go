@@ -19,6 +19,19 @@ func main() {
 	keygen()
 }
 
+// func tokengen() {
+// 	privatePEM, err := ioutil.ReadFile("/home/aram/Projects/web-service-in-go/private.pem")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+//
+// 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privatePEM)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+//
+// }
+
 func keygen() {
 	// Generate a new private key.
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
